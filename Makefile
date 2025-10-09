@@ -9,6 +9,9 @@ DOCKER_COMPOSE_PATH = ./build/compose.yaml
 GO := go
 DOCKER_COMPOSE := docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_PATH) -p $(PROJECT_NAME)
 
+# ======================================================================
+# APP MANAGEMENT
+# ======================================================================
 .PHONY: build
 build: clean build/bin/gospy
 
@@ -29,6 +32,9 @@ tidyvendor:
 generate:
 	$(GO) generate ./...
 
+# ======================================================================
+# DOCKER-COMPOSE
+# ======================================================================
 .PHONY: docker-build
 docker-build:
 	$(DOCKER_COMPOSE) build
