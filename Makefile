@@ -1,10 +1,13 @@
+# const
+PROJECT_NAME := gospy
+
 # paths
 ENV_PATH := .env.dev
 DOCKER_COMPOSE_PATH = ./build/compose.yaml
 
 # exec
 GO := go
-DOCKER_COMPOSE := docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_PATH)
+DOCKER_COMPOSE := docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_PATH) -p $(PROJECT_NAME)
 
 .PHONY: build
 build: clean build/bin/gospy
