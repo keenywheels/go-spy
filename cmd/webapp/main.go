@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/keenywheels/go-spy/internal/app"
+	app "github.com/keenywheels/go-spy/internal/webapp"
 )
 
 func main() {

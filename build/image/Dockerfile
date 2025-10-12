@@ -5,13 +5,13 @@ ENV GOOS=linux
 
 RUN apk update --no-cache && apk add --no-cache tzdata
 
-COPY go.mod go.sum /gospy/
+COPY go.mod go.sum /webapp/
 
-WORKDIR /gospy
+WORKDIR /webapp
 
 RUN go mod download
-COPY . /gospy
-RUN go build -ldflags="-s -w" -o /gospy/bin/gospy ./cmd/gospy/main.go
+COPY . /webapp
+RUN go build -ldflags="-s -w" -o /webapp/bin/webapp ./cmd/webapp/main.go
 
 FROM alpine:latest
 
@@ -19,9 +19,9 @@ ENV TZ=Europe/Moscow
 
 EXPOSE 8008
 
-WORKDIR /gospy
+WORKDIR /webapp
 
 COPY --from=builder /usr/share/zoneinfo/${TZ} /etc/localtime
 RUN echo $TZ > /etc/timezone
 
-COPY --from=builder /gospy/bin/gospy .
+COPY --from=builder /webapp/bin/webapp .

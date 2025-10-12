@@ -7,7 +7,7 @@ import (
 
 // default opts values
 const (
-	defaultConfigPath = "./configs/gospy.yaml"
+	defaultConfigPath = "./configs/webapp.yaml"
 )
 
 // envs

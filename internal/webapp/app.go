@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
-	oas "github.com/keenywheels/go-spy/internal/api/v1"
-	securityapi "github.com/keenywheels/go-spy/internal/search/delivery/http/security"
-	searchapi "github.com/keenywheels/go-spy/internal/search/delivery/http/v1"
+	oas "github.com/keenywheels/go-spy/internal/ogen/api/v1"
+	securityapi "github.com/keenywheels/go-spy/internal/webapp/delivery/http/security"
+	api "github.com/keenywheels/go-spy/internal/webapp/delivery/http/v1"
 	"github.com/keenywheels/go-spy/pkg/httpserver"
 	"github.com/keenywheels/go-spy/pkg/httputils"
 	"github.com/keenywheels/go-spy/pkg/logger"
@@ -123,7 +123,7 @@ func (app *App) initRouter() (http.Handler, error) {
 
 	// create handler
 	securityHandler := securityapi.New(clients)
-	searchHandler := searchapi.New()
+	handler := api.New()
 
 	// create custom handlers
 	notFoundHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -136,11 +136,11 @@ func (app *App) initRouter() (http.Handler, error) {
 			return
 		}
 
-		httputils.InternalErrorJSON(w)
+		httputils.BadRequestJSON(w)
 	}
 
 	// create ogen http server
-	srv, err := oas.NewServer(searchHandler, securityHandler,
+	srv, err := oas.NewServer(handler, securityHandler,
 		oas.WithNotFound(notFoundHandler),
 		oas.WithErrorHandler(errorHandler),
 	)

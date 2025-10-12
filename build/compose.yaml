@@ -1,6 +1,6 @@
 services:
-  gospy:
-    container_name: gospy
+  webapp:
+    container_name: webapp
     build:
       context: ..
       dockerfile: build/image/Dockerfile
@@ -9,5 +9,5 @@ services:
     ports:
       - "8008:8008"
     volumes:
-      - ../configs:/gospy/configs
-    command: ./gospy --config configs/gospy.yaml
+      - ../configs/webapp.yaml:/webapp/configs/webapp.yaml:ro
+    command: ./webapp --config configs/webapp.yaml

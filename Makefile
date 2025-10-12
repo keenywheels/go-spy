@@ -13,11 +13,11 @@ DOCKER_COMPOSE := docker compose -f $(DOCKER_COMPOSE_PATH) --env-file $(ENV_PATH
 # APP MANAGEMENT
 # ======================================================================
 .PHONY: build
-build: clean build/bin/gospy
+build: clean build/bin/webapp
 
-.PHONY: build/bin/gospy
-build/bin/gospy:
-	$(GO) build -o $(@) ./cmd/gospy/main.go
+.PHONY: build/bin/webapp
+build/bin/webapp:
+	$(GO) build -o $(@) ./cmd/webapp/main.go
 
 .PHONY: clean
 clean:
