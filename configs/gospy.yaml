@@ -1,0 +1,17 @@
+app:
+  http:
+    port: "8008"
+  logger:
+    loglvl: debug
+    mode: development
+    encoding: console
+  s2s:
+    header: X-Server-Side-Token
+    clients:
+      - name: vixarapi
+        token: devVixarApiToken
+  sites:
+    - https://www.coursera.org
+
+redis:
+  # TODO: сделать конфиг для редиса

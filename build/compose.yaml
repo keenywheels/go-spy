@@ -1,0 +1,13 @@
+services:
+  gospy:
+    container_name: gospy
+    build:
+      context: ..
+      dockerfile: build/image/Dockerfile
+    env_file: ../.env.dev
+    restart: always
+    ports:
+      - "8008:8008"
+    volumes:
+      - ../configs:/gospy/configs
+    command: ./gospy --config configs/gospy.yaml

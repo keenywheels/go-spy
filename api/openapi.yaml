@@ -1,0 +1,95 @@
+openapi: 3.1.0
+
+info:
+  version: 1.0.0
+  title: GoSpy API
+  description: S2S API for GoSpy used in vixar
+
+servers:
+  - url: http://localhost:8008/api/v1/
+
+paths:
+  /api/v1/search:
+    post:
+      tags: [search]
+      summary: Initiate a search for specified token
+      security:
+        - S2STokenAuth: []
+      parameters:
+        - in: header
+          name: X-Client
+          schema:
+            type: string
+          required: true
+      operationId: startSearch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartSearchRequest'
+      responses:
+        '200':
+          description: Successfully retrieved interest data
+          content:
+            application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SearchMessage'
+        '400':
+          description: Wrong request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden (wrong or missing S2S token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    S2STokenAuth:
+      type: apiKey
+      in: header
+      name: X-Server-Side-Token
+
+  schemas:
+    StartSearchRequest:
+      type: object
+      properties:
+        site:
+          type: string
+          minLength: 2
+        message_size:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 100
+        message_count:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+      required: [site]
+    SearchMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]

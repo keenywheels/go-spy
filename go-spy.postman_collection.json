@@ -1,0 +1,55 @@
+{
+	"info": {
+		"_postman_id": "b70c3f79-0efa-4597-8412-43ff7dfd239c",
+		"name": "go-spy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38504534"
+	},
+	"item": [
+		{
+			"name": "search",
+			"item": [
+				{
+					"name": "Start search",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Client",
+								"value": "vixarapi",
+								"type": "text"
+							},
+							{
+								"key": "X-Server-Side-Token",
+								"value": "devVixarApiToken",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"site\": \"https://testsite.com\",\n  \"message_size\": 100,\n  \"message_count\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8008/api/v1/search",
+							"host": [
+								"localhost"
+							],
+							"port": "8008",
+							"path": [
+								"api",
+								"v1",
+								"search"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
