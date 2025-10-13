@@ -1,6 +1,6 @@
 package http
 
-import gen "github.com/keenywheels/go-spy/internal/api/v1"
+import gen "github.com/keenywheels/go-spy/internal/ogen/api/v1"
 
 var _ gen.Handler = (*Controller)(nil)
 

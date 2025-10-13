@@ -10,8 +10,3 @@ app:
     clients:
       - name: vixarapi
         token: devVixarApiToken
-  sites:
-    - https://www.coursera.org
-
-redis:
-  # TODO: сделать конфиг для редиса

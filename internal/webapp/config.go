@@ -1,4 +1,4 @@
-package app
+package webapp
 
 import (
 	"fmt"
@@ -45,7 +45,6 @@ type AppConfig struct {
 	HttpCfg   HttpConfig   `mapstructure:"http"`
 	LoggerCfg LoggerConfig `mapstructure:"logger"`
 	S2SCfg    S2SConfig    `mapstructure:"s2s"`
-	Sites     []string     `mapstructure:"sites"`
 }
 
 // Config global config, contains all configs

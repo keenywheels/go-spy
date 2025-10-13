@@ -3,8 +3,8 @@ package http
 import (
 	"context"
 
-	gen "github.com/keenywheels/go-spy/internal/api/v1"
-	"github.com/keenywheels/go-spy/internal/search/delivery/http/security"
+	gen "github.com/keenywheels/go-spy/internal/ogen/api/v1"
+	"github.com/keenywheels/go-spy/internal/webapp/delivery/http/security"
 	"github.com/keenywheels/go-spy/pkg/ctxutils"
 	"github.com/keenywheels/go-spy/pkg/httputils"
 )

@@ -1,7 +1,7 @@
 package security
 
 import (
-	gen "github.com/keenywheels/go-spy/internal/api/v1"
+	gen "github.com/keenywheels/go-spy/internal/ogen/api/v1"
 )
 
 var _ gen.SecurityHandler = (*Controller)(nil)
