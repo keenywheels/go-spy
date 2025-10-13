@@ -3,7 +3,7 @@ services:
     container_name: webapp
     build:
       context: ..
-      dockerfile: build/image/Dockerfile
+      dockerfile: build/image/webapp/Dockerfile
     env_file: ../.env.dev
     restart: always
     ports:
@@ -11,3 +11,16 @@ services:
     volumes:
       - ../configs/webapp.yaml:/webapp/configs/webapp.yaml:ro
     command: ./webapp --config configs/webapp.yaml
+
+  scheduler:
+    container_name: scheduler
+    build:
+      context: ..
+      dockerfile: build/image/scheduler/Dockerfile
+    env_file: ../.env.dev
+    restart: always
+    ports:
+      - "8009:8009"
+    volumes:
+      - ../configs/scheduler.yaml:/scheduler/configs/scheduler.yaml:ro
+    command: ./scheduler --config configs/scheduler.yaml

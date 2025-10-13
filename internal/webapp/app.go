@@ -1,10 +1,12 @@
-package app
+package webapp
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"net/http"
+	"os/signal"
+	"syscall"
 
 	oas "github.com/keenywheels/go-spy/internal/ogen/api/v1"
 	securityapi "github.com/keenywheels/go-spy/internal/webapp/delivery/http/security"
@@ -60,7 +62,10 @@ func (app *App) Run() error {
 	// create and run main http server
 	apiSrv := app.createHttpServer(context.Background(), mux)
 
-	g, ctx := errgroup.WithContext(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
+
+	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
 		app.logger.Infof("http api server is running on %s", apiSrv.GetAddr())

@@ -1,4 +1,4 @@
-package webapp
+package scheduler
 
 import (
 	"flag"
@@ -7,7 +7,7 @@ import (
 
 // default opts values
 const (
-	defaultConfigPath = "./configs/webapp.yaml"
+	defaultConfigPath = "./configs/scheduler.yaml"
 )
 
 // envs

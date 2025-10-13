@@ -19,6 +19,10 @@ build: clean build/bin/webapp
 build/bin/webapp:
 	$(GO) build -o $(@) ./cmd/webapp/main.go
 
+.PHONY: build/bin/scheduler
+build/bin/scheduler:
+	$(GO) build -o $(@) ./cmd/scheduler/main.go
+
 .PHONY: clean
 clean:
 	rm -rf build/bin/*

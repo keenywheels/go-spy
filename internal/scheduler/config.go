@@ -1,21 +1,12 @@
-package webapp
+package scheduler
 
 import (
 	"fmt"
 	"strings"
-	"time"
 
+	"github.com/keenywheels/go-spy/pkg/scraper"
 	"github.com/spf13/viper"
 )
-
-// HttpConfig config for http server
-type HttpConfig struct {
-	Port            string        `mapstructure:"port"`
-	Host            string        `mapstructure:"host"`
-	ReadTimeout     time.Duration `mapstructure:"read_timeout"`
-	WriteTimeout    time.Duration `mapstructure:"write_timeout"`
-	ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout"`
-}
 
 // Config struct for logger config
 type LoggerConfig struct {
@@ -28,31 +19,20 @@ type LoggerConfig struct {
 	MaxLogAge     int    `mapstructure:"max_log_age"`
 }
 
-// S2SClient contains s2s client info
-type S2SClient struct {
-	Name  string `mapstructure:"name"`
-	Token string `mapstructure:"token"`
-}
-
-// S2SConfig contains s2s info
-type S2SConfig struct {
-	Header  string      `mapstructure:"header"`
-	Clients []S2SClient `mapstructure:"clients"`
-}
-
 // AppConfig contains all configs which connected to main app
 type AppConfig struct {
-	HttpCfg   HttpConfig   `mapstructure:"http"`
-	LoggerCfg LoggerConfig `mapstructure:"logger"`
-	S2SCfg    S2SConfig    `mapstructure:"s2s"`
+	CronPattern string         `mapstructure:"cron_pattern"`
+	Sites       []string       `mapstructure:"sites"`
+	LoggerCfg   LoggerConfig   `mapstructure:"logger"`
+	ScraperCfg  scraper.Config `mapstructure:"scraper"`
 }
 
 // Config global config, contains all configs
 type Config struct {
-	AppCfg AppConfig `mapstructure:"app"`
+	SchedulerCfg AppConfig `mapstructure:"scheduler"`
 }
 
-// LoadConfig function which reads config file and return Config instance
+// LoadConfig
 func LoadConfig(path string) (*Config, error) {
 	v := viper.New()
 
