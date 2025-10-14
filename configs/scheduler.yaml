@@ -1,5 +1,5 @@
 scheduler:
-  cron_pattern: "*/1 * * * *" # TODO: подобрать подходящий паттерн
+  cron_pattern: "8 * * * *" # TODO: подобрать подходящий паттерн
   # cron_pattern: "0 0 * * *" # TODO: подобрать подходящий паттерн
   logger:
     loglvl: debug
@@ -22,3 +22,4 @@ scheduler:
       Connection: "keep-alive"
   sites:
     - https://www.coursera.org
+    - https://pkg.go.dev

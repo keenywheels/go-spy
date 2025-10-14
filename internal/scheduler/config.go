@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/keenywheels/go-spy/pkg/scraper"
+	"github.com/keenywheels/go-spy/internal/pkg/scraper"
 	"github.com/spf13/viper"
 )
 

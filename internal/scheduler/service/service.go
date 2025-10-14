@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/go-co-op/gocron/v2"
+	"github.com/keenywheels/go-spy/internal/pkg/scraper"
 	"github.com/keenywheels/go-spy/pkg/logger"
-	"github.com/keenywheels/go-spy/pkg/scraper"
 )
 
 // Service represent service layer of the application

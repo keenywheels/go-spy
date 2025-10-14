@@ -1,14 +1,16 @@
 package scraper
 
 import (
-	"fmt"
-	"io"
-	"os"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 )
+
+// SetOutputCallback sets output callback function
+func (s *Scraper) SetOutputCallback(cb outputCallback) {
+	s.cb = cb
+}
 
 // Init initializes scraper
 func (s *Scraper) Init() {
@@ -81,15 +83,14 @@ func (s *Scraper) filterText(txt string) []string {
 
 // saveWords saves words to output
 func (s *Scraper) saveWords(words []string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	s.output = append(s.output, words...)
 
 	if len(s.output) >= s.outputEvery {
-		s.writeOutput(os.Stdout, strings.Join(s.output, " "))
+		msg := strings.Join(s.output, " ")
+		s.cb(msg)
 		s.output = s.output[:0]
 	}
-}
-
-// writeOutput writes output to writer
-func (s *Scraper) writeOutput(w io.Writer, txt string) {
-	fmt.Fprintf(w, "RESULT: %s\n", txt)
 }
