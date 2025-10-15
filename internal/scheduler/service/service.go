@@ -6,8 +6,14 @@ import (
 
 	"github.com/go-co-op/gocron/v2"
 	"github.com/keenywheels/go-spy/internal/pkg/scraper"
+	"github.com/keenywheels/go-spy/internal/scheduler/models"
 	"github.com/keenywheels/go-spy/pkg/logger"
 )
+
+// IBroker represents broker interface
+type IBroker interface {
+	SendScraperData(event models.ScraperEvent) error
+}
 
 // Service represent service layer of the application
 type Service struct {
@@ -19,6 +25,8 @@ type Service struct {
 	ctx        context.Context
 	logger     logger.Logger
 	scraperCfg *scraper.Config
+
+	broker IBroker
 }
 
 // New creates new service instance
@@ -28,6 +36,7 @@ func New(
 	scraperCfg *scraper.Config,
 	cronPattern string,
 	sites []string,
+	broker IBroker,
 ) (*Service, error) {
 	scheduler, err := gocron.NewScheduler()
 	if err != nil {
@@ -41,6 +50,7 @@ func New(
 		ctx:         ctx,
 		logger:      logger,
 		scraperCfg:  scraperCfg,
+		broker:      broker,
 	}
 
 	if err := srv.initJobs(); err != nil {

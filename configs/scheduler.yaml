@@ -23,3 +23,10 @@ scheduler:
   sites:
     - https://www.coursera.org
     - https://pkg.go.dev
+
+kafka:
+  max_retry: 5
+  brokers:
+    - localhost:9092
+  topics:
+    scraper_data: "scraper_data"
