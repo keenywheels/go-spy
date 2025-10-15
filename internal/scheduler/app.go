@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/keenywheels/go-spy/internal/pkg/producer/kafka"
+	"github.com/keenywheels/go-spy/internal/scheduler/repository/broker"
 	"github.com/keenywheels/go-spy/internal/scheduler/service"
 	"github.com/keenywheels/go-spy/pkg/logger"
 	"github.com/keenywheels/go-spy/pkg/logger/zap"
@@ -48,6 +50,18 @@ func (app *App) Run() error {
 
 	g, ctx := errgroup.WithContext(ctx)
 
+	// create broker
+	kafka, err := kafka.New(cfg.KafkaCfg.Brokers, kafka.Config{
+		MaxRetry: cfg.KafkaCfg.MaxRetry,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create kafka producer: %w", err)
+	}
+
+	broker := broker.New(kafka, broker.Topics{
+		ScraperData: cfg.KafkaCfg.Topics.ScraperData,
+	})
+
 	// create service layer
 	srv, err := service.New(
 		ctx,
@@ -55,6 +69,7 @@ func (app *App) Run() error {
 		&app.cfg.SchedulerCfg.ScraperCfg,
 		app.cfg.SchedulerCfg.CronPattern,
 		app.cfg.SchedulerCfg.Sites,
+		broker,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create service layer: %w", err)

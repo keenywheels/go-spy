@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/gocolly/colly"
 )
+
+// outputCallback is a callback function that processes output
+type outputCallback func(string)
 
 // Scraper wrapper over gocolly package which provides scraper logic for html parse
 type Scraper struct {
@@ -16,6 +20,8 @@ type Scraper struct {
 
 	output      []string
 	outputEvery int
+	cb          outputCallback
+	mu          sync.Mutex
 
 	headers map[string]string
 }
@@ -60,6 +66,7 @@ func New(cfg *Config) (*Scraper, error) {
 		headers:     cfg.Headers,
 		output:      make([]string, 0, cfg.OutputEvery),
 		outputEvery: cfg.OutputEvery,
+		cb:          defaultOutputCallback,
 	}, nil
 }
 
@@ -93,5 +100,11 @@ func NewDefault() (*Scraper, error) {
 		headers:     cfg.Headers,
 		output:      make([]string, 0, cfg.OutputEvery),
 		outputEvery: cfg.OutputEvery,
+		cb:          defaultOutputCallback,
 	}, nil
+}
+
+// defaultOutputCallback is the default output callback function
+func defaultOutputCallback(msg string) {
+	fmt.Printf("RESULT: %s\n", msg)
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/keenywheels/go-spy/pkg/scraper"
+	"github.com/keenywheels/go-spy/internal/pkg/scraper"
 	"github.com/spf13/viper"
 )
 
@@ -27,9 +27,22 @@ type AppConfig struct {
 	ScraperCfg  scraper.Config `mapstructure:"scraper"`
 }
 
+// KafkaTopics contains all kafka topics
+type KafkaTopics struct {
+	ScraperData string `mapstructure:"scraper_data"`
+}
+
+// KafkaConfig contains config for kafka
+type KafkaConfig struct {
+	MaxRetry int         `mapstructure:"max_retry"`
+	Brokers  []string    `mapstructure:"brokers"`
+	Topics   KafkaTopics `mapstructure:"topics"`
+}
+
 // Config global config, contains all configs
 type Config struct {
-	SchedulerCfg AppConfig `mapstructure:"scheduler"`
+	SchedulerCfg AppConfig   `mapstructure:"scheduler"`
+	KafkaCfg     KafkaConfig `mapstructure:"kafka"`
 }
 
 // LoadConfig

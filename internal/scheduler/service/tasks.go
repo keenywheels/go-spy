@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"time"
 
-	"github.com/keenywheels/go-spy/pkg/scraper"
+	"github.com/keenywheels/go-spy/internal/pkg/scraper"
+	"github.com/keenywheels/go-spy/internal/scheduler/models"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -28,10 +30,12 @@ func (s *Service) ScrapeTask() {
 		return nil
 	})
 
+	scrapeStart := time.Now()
+
 	// start workers
 	for i := 0; i < workerCount; i++ {
 		gr.Go(func() error {
-			return s.scrapeWorker(ctx, i, sitesCh)
+			return s.scrapeWorker(ctx, i, scrapeStart, sitesCh)
 		})
 	}
 
@@ -41,25 +45,50 @@ func (s *Service) ScrapeTask() {
 }
 
 // scrapeWorker is the worker that will perform the scraping
-func (s *Service) scrapeWorker(ctx context.Context, workerNum int, sitesCh chan string) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-	}
+func (s *Service) scrapeWorker(
+	ctx context.Context,
+	workerNum int,
+	start time.Time,
+	sitesCh chan string,
+) error {
+	for {
+		select {
+		case <-ctx.Done():
+			s.logger.Infof("[WORKER %d] received done signal", workerNum)
+			return ctx.Err()
+		case site, ok := <-sitesCh:
+			if !ok {
+				s.logger.Infof("[WORKER %d] no available sites to scrape, stopping...", workerNum)
+				return nil
+			}
 
-	for site := range sitesCh {
-		s.logger.Infof("[WORKER %d] start scraping site: %s", workerNum, site)
+			s.logger.Infof("[WORKER %d] start scraping site: %s", workerNum, site)
 
-		scraper, err := scraper.New(s.scraperCfg)
-		if err != nil {
-			s.logger.Errorf("failed to create scraper: %v", err)
+			scraper, err := scraper.New(s.scraperCfg)
+			if err != nil {
+				s.logger.Errorf("failed to create scraper: %v", err)
+				continue
+			}
 
-			return err
+			cb := func(msg string) {
+				s.logger.Infof("[WORKER %d] sending data to kafka\n", workerNum)
+
+				if err := s.broker.SendScraperData(models.ScraperEvent{
+					Site: site,
+					Msg:  msg,
+					Data: start,
+				}); err != nil {
+					s.logger.Errorf("[WORKER %d] failed to send data to kafka: %v", workerNum, err)
+				}
+			}
+
+			scraper.SetOutputCallback(cb)
+			scraper.Init()
+
+			if err := scraper.Visit(site); err != nil {
+				s.logger.Errorf("[WORKER %d] failed to visit site %s: %v", workerNum, site, err)
+				continue
+			}
 		}
-
-		scraper.Visit(site)
 	}
-
-	return nil
 }
