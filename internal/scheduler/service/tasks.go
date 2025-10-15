@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/keenywheels/go-spy/internal/pkg/scraper"
@@ -51,18 +52,20 @@ func (s *Service) scrapeWorker(
 	start time.Time,
 	sitesCh chan string,
 ) error {
+	op := fmt.Sprintf("WORKER %d", workerNum)
+
 	for {
 		select {
 		case <-ctx.Done():
-			s.logger.Infof("[WORKER %d] received done signal", workerNum)
+			s.logger.Infof("[%s] received done signal", op)
 			return ctx.Err()
 		case site, ok := <-sitesCh:
 			if !ok {
-				s.logger.Infof("[WORKER %d] no available sites to scrape, stopping...", workerNum)
+				s.logger.Infof("[%s] no available sites to scrape, stopping...", op)
 				return nil
 			}
 
-			s.logger.Infof("[WORKER %d] start scraping site: %s", workerNum, site)
+			s.logger.Infof("[%s] start scraping site: %s", op, site)
 
 			scraper, err := scraper.New(s.scraperCfg)
 			if err != nil {
@@ -71,14 +74,14 @@ func (s *Service) scrapeWorker(
 			}
 
 			cb := func(msg string) {
-				s.logger.Infof("[WORKER %d] sending data to kafka\n", workerNum)
+				s.logger.Infof("[%s] sending data to kafka", op)
 
 				if err := s.broker.SendScraperData(models.ScraperEvent{
 					Site: site,
 					Msg:  msg,
 					Data: start,
 				}); err != nil {
-					s.logger.Errorf("[WORKER %d] failed to send data to kafka: %v", workerNum, err)
+					s.logger.Errorf("[%s] failed to send data to kafka: %v", op, err)
 				}
 			}
 
@@ -86,7 +89,7 @@ func (s *Service) scrapeWorker(
 			scraper.Init()
 
 			if err := scraper.Visit(site); err != nil {
-				s.logger.Errorf("[WORKER %d] failed to visit site %s: %v", workerNum, site, err)
+				s.logger.Errorf("[%s] failed to visit site %s: %v", op, site, err)
 				continue
 			}
 		}
