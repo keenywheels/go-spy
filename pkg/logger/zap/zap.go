@@ -4,10 +4,13 @@ import (
 	"log"
 	"os"
 
+	"github.com/keenywheels/go-spy/pkg/logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
+
+var _ logger.Logger = (*Logger)(nil)
 
 // Logger wrapper over zap logger
 type Logger struct {
