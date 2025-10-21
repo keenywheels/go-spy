@@ -87,8 +87,8 @@ func New(opts ...Option) *Logger {
 	return l
 }
 
-// Sync wrapper over zaplogger Sync
-func (l *Logger) Sync() error {
+// Close wrapper over zaplogger Sync
+func (l *Logger) Close() error {
 	return l.sl.Sync()
 }
 

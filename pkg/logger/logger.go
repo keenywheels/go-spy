@@ -27,4 +27,5 @@ type Logger interface {
 	With(fields ...Field) Logger
 
 	ToStdLog() *log.Logger
+	Close() error
 }

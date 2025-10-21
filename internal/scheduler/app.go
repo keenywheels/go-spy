@@ -3,6 +3,7 @@ package scheduler
 import (
 	"context"
 	"fmt"
+	"log"
 	"os/signal"
 	"syscall"
 
@@ -43,7 +44,11 @@ func (app *App) Run() error {
 
 	app.cfg = cfg
 	app.initLogger()
-	// TODO: defer logger sync
+	defer func() {
+		if err := app.logger.Close(); err != nil {
+			log.Printf("failed to close logger: %v", err)
+		}
+	}()
 
 	// create errgroup with signal context
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
