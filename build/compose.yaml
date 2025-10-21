@@ -7,7 +7,7 @@ services:
     env_file: webapp.env
     restart: always
     ports:
-      - "8008:8008"
+      - "${WEBAPP_PORT}:${WEBAPP_PORT}"
     volumes:
       - ../configs/webapp.yaml:/webapp/configs/webapp.yaml:ro
     command: ./webapp --config ${WEBAPP_CONFIG_PATH}
@@ -18,57 +18,67 @@ services:
       context: ..
       dockerfile: build/image/scheduler/Dockerfile
     depends_on:
-      kafka:
-        condition: service_healthy
+      - init-kafka
     env_file: scheduler.env
     restart: always
     ports:
-      - "8009:8009"
+      - "${SCHEDULER_PORT}:${SCHEDULER_PORT}"
     volumes:
       - ../configs/scheduler.yaml:/scheduler/configs/scheduler.yaml:ro
     command: ./scheduler --config ${SCHEDULER_CONFIG_PATH}
 
-  zookeeper:
-    container_name: zookeeper
-    image: confluentinc/cp-zookeeper:7.5.0
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 9090
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "9090:9090"
-
-  kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    depends_on:
-      - kafka
-    ports:
-      - "9091:9091"
-    environment:
-      SERVER_PORT: 9091
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:9090
-
+  # standalone kafka setup; should be replaced with a proper cluster if needed
   kafka:
     container_name: kafka
-    image: confluentinc/cp-kafka:7.5.0
-    depends_on:
-      - zookeeper
+    image: confluentinc/cp-kafka:7.8.0
+    hostname: ${KAFKA_HOSTNAME}
     ports:
-      - "9092:9092"
+      - "${KAFKA_HOST_PORT}:${KAFKA_HOST_PORT}"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:9090
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      CLUSTER_ID: DnYp3Yv0TqK3f7lS0BqgVQ
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:${KAFKA_CONTROLLER_PORT}
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_LISTENERS: CONTROLLER://localhost:${KAFKA_CONTROLLER_PORT},HOST://0.0.0.0:${KAFKA_HOST_PORT}, DOCKER://0.0.0.0:${KAFKA_DOCKER_PORT}
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:${KAFKA_HOST_PORT},DOCKER://${KAFKA_HOSTNAME}:${KAFKA_DOCKER_PORT}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,HOST:PLAINTEXT,DOCKER:PLAINTEXT
     healthcheck:
       test: kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1
       interval: 5s
       timeout: 10s
       retries: 10
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "${KAFKA_UI_PORT}:${KAFKA_UI_PORT}"
+    environment:
+      SERVER_PORT: ${KAFKA_UI_PORT}
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${KAFKA_HOSTNAME}:${KAFKA_DOCKER_PORT}
+      AUTH_TYPE: "LOGIN_FORM"
+      SPRING_SECURITY_USER_NAME: ${KAFKA_UI_USERNAME}
+      SPRING_SECURITY_USER_PASSWORD: ${KAFKA_UI_PASSWORD}
+
+  init-kafka:
+    container_name: init-kafka
+    image: confluentinc/cp-kafka:7.8.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server ${KAFKA_HOSTNAME}:${KAFKA_DOCKER_PORT} --create --if-not-exists --topic ${KAFKA_SCRAPER_TOPIC} --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server ${KAFKA_HOSTNAME}:${KAFKA_DOCKER_PORT} --list
+      "

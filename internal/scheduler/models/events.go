@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-// ScraperGotDataEvent represents an event when the scraper gets data
+// ScraperEvent represents an event when the scraper gets data
 type ScraperEvent struct {
 	Site string    `json:"site"`
 	Msg  string    `json:"msg"`

@@ -37,7 +37,7 @@ func (c *Controller) StartSearch(
 		}, nil
 	}
 
-	log.Infof("%s: got start search request for search: %+v", op, req)
+	log.Infof("[%s] got start search request for search: %+v", op, req)
 
 	resp := gen.StartSearchOKApplicationJSON(getMockData())
 

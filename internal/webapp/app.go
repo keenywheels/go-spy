@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os/signal"
 	"syscall"
@@ -52,6 +53,11 @@ func (app *App) Run() error {
 
 	app.cfg = cfg
 	app.initLogger()
+	defer func() {
+		if err := app.logger.Close(); err != nil {
+			log.Printf("failed to close logger: %v", err)
+		}
+	}()
 
 	// create mux using ogen
 	mux, err := app.initRouter()

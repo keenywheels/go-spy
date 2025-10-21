@@ -4,7 +4,7 @@ app:
   logger:
     loglvl: debug
     mode: development
-    encoding: console
+    encoding: json
   s2s:
     header: X-Server-Side-Token
     clients:

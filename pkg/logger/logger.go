@@ -2,7 +2,12 @@ package logger
 
 import "log"
 
-// TODO: добавить With метод, чтобы можно было проставлять поля в логгере
+// Field field used to add key-value pairs to logs
+type Field struct {
+	Key   string
+	Value any
+}
+
 // Logger interface
 type Logger interface {
 	Debugf(format string, args ...any)
@@ -19,5 +24,8 @@ type Logger interface {
 	Panic(args ...any)
 	Fatal(args ...any)
 
+	With(fields ...Field) Logger
+
 	ToStdLog() *log.Logger
+	Close() error
 }
