@@ -52,6 +52,7 @@ func (app *App) Run() error {
 
 	app.cfg = cfg
 	app.initLogger()
+	// TODO: defer logger sync
 
 	// create mux using ogen
 	mux, err := app.initRouter()

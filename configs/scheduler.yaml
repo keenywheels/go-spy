@@ -1,6 +1,5 @@
 scheduler:
-  cron_pattern: "48 * * * *" # TODO: подобрать подходящий паттерн
-  # cron_pattern: "0 0 * * *" # TODO: подобрать подходящий паттерн
+  cron_pattern: "46 * * * *"
   logger:
     loglvl: debug
     mode: development
@@ -10,9 +9,9 @@ scheduler:
     max_depth: 5
     filter_pattern: "^[A-Za-zА-Яа-яЁё]+$"
     tags_to_parse: ["div", "span", "p", "a", "h1", "h2", "h3", "h4", "h5", "h6"]
-    is_async: true
-    async_delay: 3s
-    async_request_limit: 5
+    is_async: false
+    # async_delay: 3s
+    # async_request_limit: 5
     user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
     headers:
       User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
@@ -27,6 +26,6 @@ scheduler:
 kafka:
   max_retry: 5
   brokers:
-    - kafka:29092
+    - kafka:9093
   topics:
     scraper_data: "scraper_data"

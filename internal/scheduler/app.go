@@ -43,6 +43,7 @@ func (app *App) Run() error {
 
 	app.cfg = cfg
 	app.initLogger()
+	// TODO: defer logger sync
 
 	// create errgroup with signal context
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
