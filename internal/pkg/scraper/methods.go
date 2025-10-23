@@ -39,6 +39,18 @@ func (s *Scraper) Visit(url string) error {
 	return s.c.Visit(url)
 }
 
+// Flush flushes remaining output
+func (s *Scraper) Flush() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if len(s.output) > 0 {
+		msg := strings.Join(s.output, " ")
+		s.cb(msg)
+		s.output = s.output[:0]
+	}
+}
+
 // getDirectText get only direct text in element
 func (s *Scraper) getDirectText(e *colly.HTMLElement) string {
 	// check if leaf elem

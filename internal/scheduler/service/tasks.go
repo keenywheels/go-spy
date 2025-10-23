@@ -79,7 +79,7 @@ func (s *Service) scrapeWorker(
 				if err := s.broker.SendScraperData(models.ScraperEvent{
 					Site: site,
 					Msg:  msg,
-					Data: start,
+					Date: start,
 				}); err != nil {
 					s.logger.Errorf("[%s] failed to send data to kafka: %v", op, err)
 				}
@@ -90,8 +90,12 @@ func (s *Service) scrapeWorker(
 
 			if err := scraper.Visit(site); err != nil {
 				s.logger.Errorf("[%s] failed to visit site %s: %v", op, site, err)
+				scraper.Flush()
+
 				continue
 			}
+
+			scraper.Flush()
 		}
 	}
 }
