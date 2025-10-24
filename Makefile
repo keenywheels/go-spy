@@ -2,7 +2,7 @@
 PROJECT_NAME := gospy
 
 # paths
-ENV_PATH := ./build/.env.dev
+ENV_PATH := ./build/.dev.env
 DOCKER_COMPOSE_PATH = ./build/compose.yaml
 
 # exec
