@@ -36,7 +36,7 @@ func (w *loggingResponseWriter) WriteHeader(status int) {
 }
 
 // WithLogging logging incoming requests, also adds logger and reqid in request's context
-func WithLogging(l logger.Logger, next http.Handler) http.Handler {
+func WithLogging(baseLogger logger.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var (
 			url    = r.URL.String()
@@ -46,7 +46,7 @@ func WithLogging(l logger.Logger, next http.Handler) http.Handler {
 			reqid  = uuid.New().String()
 		)
 
-		l = l.With(logger.Field{Key: "reqid", Value: reqid})
+		l := baseLogger.With(logger.Field{Key: "reqid", Value: reqid})
 		l.Infof("got request: url=%s, method=%s, ip=%s", url, method, ip)
 
 		// create custom ResponseWriter
@@ -63,7 +63,7 @@ func WithLogging(l logger.Logger, next http.Handler) http.Handler {
 		next.ServeHTTP(lw, r.WithContext(ctx))
 
 		duration := time.Since(start)
-		l.Infof("request to [%s] %s done: status=%s size=%d, time=%s",
+		l.Infof("request to [%s] %s done: status=%d size=%d, time=%s",
 			method,
 			url,
 			lw.data.status,
