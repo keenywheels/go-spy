@@ -1,0 +1,50 @@
+name: cd
+
+on:
+  push:
+    branches:
+      - master
+
+  workflow_dispatch:
+
+jobs:
+  delivery:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - image: daronenko/vixar-scheduler
+            dockerfile: build/image/scheduler/Dockerfile
+          - image: daronenko/vixar-webapp
+            dockerfile: build/image/webapp/Dockerfile
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: log in to image registry
+        uses: docker/login-action@v2
+        with:
+          username: daronenko
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: build docker image
+        run: |
+          SHORT_SHA=$(git rev-parse --short=8 HEAD)
+          TAG_SHA=${{ matrix.image }}:${SHORT_SHA}
+          TAG_LATEST=${{ matrix.image }}:latest
+
+          docker build \
+            --file ${{ matrix.dockerfile }} \
+            --tag $TAG_SHA \
+            --tag $TAG_LATEST \
+            .
+
+      - name: push docker image
+        run: |
+          SHORT_SHA=$(git rev-parse --short=8 HEAD)
+          docker push ${{ matrix.image }}:${SHORT_SHA}
+          docker push ${{ matrix.image }}:latest
