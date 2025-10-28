@@ -68,13 +68,19 @@ func (app *App) Run() error {
 		ScraperData: cfg.KafkaCfg.Topics.ScraperData,
 	})
 
+	// prepare sites map
+	sites := make(map[string]string, len(app.cfg.SchedulerCfg.Sites))
+	for _, site := range app.cfg.SchedulerCfg.Sites {
+		sites[site.Name] = site.Url
+	}
+
 	// create service layer
 	srv, err := service.New(
 		ctx,
 		app.logger,
 		&app.cfg.SchedulerCfg.ScraperCfg,
 		app.cfg.SchedulerCfg.CronPattern,
-		app.cfg.SchedulerCfg.Sites,
+		sites,
 		broker,
 	)
 	if err != nil {

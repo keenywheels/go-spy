@@ -20,7 +20,7 @@ type Service struct {
 	cronPattern string
 	scheduler   gocron.Scheduler
 
-	sites []string
+	sites map[string]string
 
 	ctx        context.Context
 	logger     logger.Logger
@@ -35,7 +35,7 @@ func New(
 	logger logger.Logger,
 	scraperCfg *scraper.Config,
 	cronPattern string,
-	sites []string,
+	sites map[string]string,
 	broker IBroker,
 ) (*Service, error) {
 	scheduler, err := gocron.NewScheduler()

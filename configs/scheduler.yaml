@@ -1,5 +1,5 @@
 scheduler:
-  cron_pattern: "46 * * * *"
+  cron_pattern: "06 * * * *"
   logger:
     loglvl: debug
     mode: development
@@ -20,8 +20,10 @@ scheduler:
       Accept-Encoding: "gzip, deflate, br, zstd"
       Connection: "keep-alive"
   sites:
-    - https://www.coursera.org
-    - https://pkg.go.dev
+    - name: coursera
+      url: https://www.coursera.org
+    - name: go.dev
+      url: https://pkg.go.dev
 
 kafka:
   max_retry: 5

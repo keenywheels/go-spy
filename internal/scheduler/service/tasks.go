@@ -12,18 +12,27 @@ import (
 
 const workerCount = 5
 
+// siteMsg represents message from scraped site
+type siteMsg struct {
+	SiteName string
+	SiteUrl  string
+}
+
 // ScrapeTask is the task that will be executed by the scheduler
 func (s *Service) ScrapeTask() {
 	op := "Service.ScrapeTask"
 
-	sitesCh := make(chan string)
+	sitesCh := make(chan siteMsg)
 
 	gr, ctx := errgroup.WithContext(s.ctx)
 
 	// job producer
 	gr.Go(func() error {
-		for _, site := range s.sites {
-			sitesCh <- site
+		for name, url := range s.sites {
+			sitesCh <- siteMsg{
+				SiteName: name,
+				SiteUrl:  url,
+			}
 		}
 
 		close(sitesCh)
@@ -31,7 +40,7 @@ func (s *Service) ScrapeTask() {
 		return nil
 	})
 
-	scrapeStart := time.Now()
+	scrapeStart := time.Now().Format("02-01-2006")
 
 	// start workers
 	for i := 0; i < workerCount; i++ {
@@ -49,8 +58,8 @@ func (s *Service) ScrapeTask() {
 func (s *Service) scrapeWorker(
 	ctx context.Context,
 	workerNum int,
-	start time.Time,
-	sitesCh chan string,
+	start string,
+	sitesCh chan siteMsg,
 ) error {
 	op := fmt.Sprintf("WORKER %d", workerNum)
 
@@ -65,7 +74,7 @@ func (s *Service) scrapeWorker(
 				return nil
 			}
 
-			s.logger.Infof("[%s] start scraping site: %s", op, site)
+			s.logger.Infof("[%s] start scraping site: %v", op, site)
 
 			scraper, err := scraper.New(s.scraperCfg)
 			if err != nil {
@@ -77,9 +86,9 @@ func (s *Service) scrapeWorker(
 				s.logger.Infof("[%s] sending data to kafka", op)
 
 				if err := s.broker.SendScraperData(models.ScraperEvent{
-					Site: site,
-					Msg:  msg,
-					Date: start,
+					SiteName: site.SiteName,
+					Msg:      msg,
+					Date:     start,
 				}); err != nil {
 					s.logger.Errorf("[%s] failed to send data to kafka: %v", op, err)
 				}
@@ -88,7 +97,7 @@ func (s *Service) scrapeWorker(
 			scraper.SetOutputCallback(cb)
 			scraper.Init()
 
-			if err := scraper.Visit(site); err != nil {
+			if err := scraper.Visit(site.SiteUrl); err != nil {
 				s.logger.Errorf("[%s] failed to visit site %s: %v", op, site, err)
 				scraper.Flush()
 
