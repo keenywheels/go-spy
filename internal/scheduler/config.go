@@ -19,10 +19,15 @@ type LoggerConfig struct {
 	MaxLogAge     int    `mapstructure:"max_log_age"`
 }
 
+type Site struct {
+	Name string `mapstructure:"name"`
+	Url  string `mapstructure:"url"`
+}
+
 // AppConfig contains all configs which connected to main app
 type AppConfig struct {
 	CronPattern string         `mapstructure:"cron_pattern"`
-	Sites       []string       `mapstructure:"sites"`
+	Sites       []Site         `mapstructure:"sites"`
 	LoggerCfg   LoggerConfig   `mapstructure:"logger"`
 	ScraperCfg  scraper.Config `mapstructure:"scraper"`
 }
