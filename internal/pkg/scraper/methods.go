@@ -1,6 +1,7 @@
 package scraper
 
 import (
+	"net/url"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -30,12 +31,23 @@ func (s *Scraper) Init() {
 	// parse links
 	s.c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		link := e.Attr("href")
-		s.c.Visit(e.Request.AbsoluteURL(link))
+
+		// filter links
+		if s.filterLink(link) {
+			s.c.Visit(e.Request.AbsoluteURL(link))
+		}
 	})
 }
 
 // Visit start scraping from specified url
 func (s *Scraper) Visit(url string) error {
+	s.setSiteInfo("", url)
+	return s.c.Visit(url)
+}
+
+// VisitWithSiteName start scraping from specified url
+func (s *Scraper) VisitWithSiteName(url string, siteName string) error {
+	s.setSiteInfo(siteName, url)
 	return s.c.Visit(url)
 }
 
@@ -105,4 +117,26 @@ func (s *Scraper) saveWords(words []string) {
 		s.cb(msg)
 		s.output = s.output[:0]
 	}
+}
+
+// setSiteInfo sets site name and domain
+func (s *Scraper) setSiteInfo(name, siteURL string) {
+	var domain string
+
+	parsedURL, err := url.Parse(siteURL)
+	if err == nil {
+		domain = parsedURL.Hostname()
+	}
+
+	s.siteName = name
+	s.siteDomain = domain
+}
+
+// filterLink checks if link belongs to the same domain
+func (s *Scraper) filterLink(link string) bool {
+	if strings.Contains(link, s.siteDomain) || strings.Contains(link, s.siteName) {
+		return true
+	}
+
+	return false
 }

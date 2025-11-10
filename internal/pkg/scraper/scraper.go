@@ -18,6 +18,9 @@ type Scraper struct {
 	filter *regexp.Regexp
 	tags   string
 
+	siteName   string
+	siteDomain string
+
 	output      []string
 	outputEvery int
 	cb          outputCallback
