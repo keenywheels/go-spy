@@ -34,6 +34,7 @@ func (s *Scraper) Init() {
 
 		// filter links
 		if s.filterLink(link) {
+			s.visited[link] = struct{}{}
 			s.c.Visit(e.Request.AbsoluteURL(link))
 		}
 	})
@@ -41,13 +42,13 @@ func (s *Scraper) Init() {
 
 // Visit start scraping from specified url
 func (s *Scraper) Visit(url string) error {
-	s.setSiteInfo("", url)
+	s.prepareScraper("", url)
 	return s.c.Visit(url)
 }
 
 // VisitWithSiteName start scraping from specified url
 func (s *Scraper) VisitWithSiteName(url string, siteName string) error {
-	s.setSiteInfo(siteName, url)
+	s.prepareScraper(siteName, url)
 	return s.c.Visit(url)
 }
 
@@ -119,10 +120,11 @@ func (s *Scraper) saveWords(words []string) {
 	}
 }
 
-// setSiteInfo sets site name and domain
-func (s *Scraper) setSiteInfo(name, siteURL string) {
-	var domain string
+// prepareScraper prepares the scraper
+func (s *Scraper) prepareScraper(name, siteURL string) {
+	s.visited = make(map[string]struct{})
 
+	var domain string
 	parsedURL, err := url.Parse(siteURL)
 	if err == nil {
 		domain = parsedURL.Hostname()
@@ -134,6 +136,10 @@ func (s *Scraper) setSiteInfo(name, siteURL string) {
 
 // filterLink checks if link belongs to the same domain
 func (s *Scraper) filterLink(link string) bool {
+	if _, ok := s.visited[link]; ok {
+		return false
+	}
+
 	if strings.Contains(link, s.siteDomain) || strings.Contains(link, s.siteName) {
 		return true
 	}

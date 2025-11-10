@@ -20,6 +20,7 @@ type Scraper struct {
 
 	siteName   string
 	siteDomain string
+	visited    map[string]struct{}
 
 	output      []string
 	outputEvery int
