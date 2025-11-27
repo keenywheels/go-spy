@@ -26,10 +26,11 @@ type Site struct {
 
 // AppConfig contains all configs which connected to main app
 type AppConfig struct {
-	CronPattern string         `mapstructure:"cron_pattern"`
-	Sites       []Site         `mapstructure:"sites"`
-	LoggerCfg   LoggerConfig   `mapstructure:"logger"`
-	ScraperCfg  scraper.Config `mapstructure:"scraper"`
+	CronPattern  string         `mapstructure:"cron_pattern"`
+	WorkersCount int            `mapstructure:"workers_count"`
+	Sites        []Site         `mapstructure:"sites"`
+	LoggerCfg    LoggerConfig   `mapstructure:"logger"`
+	ScraperCfg   scraper.Config `mapstructure:"scraper"`
 }
 
 // KafkaTopics contains all kafka topics

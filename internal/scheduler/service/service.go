@@ -17,8 +17,9 @@ type IBroker interface {
 
 // Service represent service layer of the application
 type Service struct {
-	cronPattern string
-	scheduler   gocron.Scheduler
+	cronPattern  string
+	workersCount int
+	scheduler    gocron.Scheduler
 
 	sites map[string]string
 
@@ -35,6 +36,7 @@ func New(
 	logger logger.Logger,
 	scraperCfg *scraper.Config,
 	cronPattern string,
+	workersCount int,
 	sites map[string]string,
 	broker IBroker,
 ) (*Service, error) {
@@ -44,13 +46,14 @@ func New(
 	}
 
 	srv := Service{
-		cronPattern: cronPattern,
-		sites:       sites,
-		scheduler:   scheduler,
-		ctx:         ctx,
-		logger:      logger,
-		scraperCfg:  scraperCfg,
-		broker:      broker,
+		cronPattern:  cronPattern,
+		workersCount: workersCount,
+		sites:        sites,
+		scheduler:    scheduler,
+		ctx:          ctx,
+		logger:       logger,
+		scraperCfg:   scraperCfg,
+		broker:       broker,
 	}
 
 	if err := srv.initJobs(); err != nil {
