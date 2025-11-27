@@ -1,5 +1,6 @@
 scheduler:
-  cron_pattern: "06 * * * *"
+  cron_pattern: "37 * * * *"
+  workers_count: 1
   logger:
     loglvl: debug
     mode: development

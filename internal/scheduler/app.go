@@ -80,6 +80,7 @@ func (app *App) Run() error {
 		app.logger,
 		&app.cfg.SchedulerCfg.ScraperCfg,
 		app.cfg.SchedulerCfg.CronPattern,
+		app.cfg.SchedulerCfg.WorkersCount,
 		sites,
 		broker,
 	)

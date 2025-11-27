@@ -10,8 +10,6 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const workerCount = 5
-
 // siteMsg represents message from scraped site
 type siteMsg struct {
 	SiteName string
@@ -43,8 +41,9 @@ func (s *Service) ScrapeTask() {
 	scrapeStart := time.Now().Format("02-01-2006")
 
 	// start workers
-	for i := 0; i < workerCount; i++ {
+	for i := 0; i < s.workersCount; i++ {
 		gr.Go(func() error {
+			s.logger.Infof("[%s] starting scrape worker %d", op, i)
 			return s.scrapeWorker(ctx, i, scrapeStart, sitesCh)
 		})
 	}
