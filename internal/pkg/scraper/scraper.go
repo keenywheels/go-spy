@@ -48,7 +48,6 @@ func New(cfg *Config) (*Scraper, error) {
 		colly.UserAgent(cfg.UserAgent),
 		colly.MaxDepth(cfg.MaxDepth),
 		colly.Async(cfg.IsAsync),
-		colly.AllowURLRevisit(),
 	)
 
 	// if async then add limits
