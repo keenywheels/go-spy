@@ -6,7 +6,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/queue"
 )
 
 // outputCallback is a callback function that processes output
@@ -14,7 +15,9 @@ type outputCallback func(string)
 
 // Scraper wrapper over gocolly package which provides scraper logic for html parse
 type Scraper struct {
-	c      *colly.Collector
+	c *colly.Collector
+	q *queue.Queue
+
 	filter *regexp.Regexp
 	tags   string
 
@@ -63,8 +66,19 @@ func New(cfg *Config) (*Scraper, error) {
 		})
 	}
 
+	// set queue if enabled
+	var q *queue.Queue
+
+	if cfg.Queue.Enabled {
+		q, _ = queue.New(
+			cfg.Queue.ThreadNumber,
+			&queue.InMemoryQueueStorage{MaxSize: cfg.Queue.MaxSize},
+		)
+	}
+
 	return &Scraper{
 		c:           c,
+		q:           q,
 		filter:      re,
 		tags:        strings.Join(cfg.TagsToParse, ", "),
 		headers:     cfg.Headers,

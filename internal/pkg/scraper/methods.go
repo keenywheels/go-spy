@@ -1,11 +1,12 @@
 package scraper
 
 import (
+	"fmt"
 	"net/url"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/v2"
 )
 
 // SetOutputCallback sets output callback function
@@ -34,7 +35,18 @@ func (s *Scraper) Init() {
 
 		// filter links
 		if s.filterLink(link) {
+			s.mu.Lock()
 			s.visited[link] = struct{}{}
+			s.mu.Unlock()
+
+			fmt.Printf("TESTING: adding to queue link %s\n", e.Request.AbsoluteURL(link))
+
+			// add to queue if exists
+			if s.q != nil {
+				s.q.AddURL(e.Request.AbsoluteURL(link))
+				return
+			}
+
 			s.c.Visit(e.Request.AbsoluteURL(link))
 		}
 	})
@@ -43,6 +55,12 @@ func (s *Scraper) Init() {
 // Visit start scraping from specified url
 func (s *Scraper) Visit(url string) error {
 	s.prepareScraper("", url)
+
+	// run queue if exists
+	if s.q != nil {
+		s.q.Run(s.c)
+	}
+
 	return s.c.Visit(url)
 }
 
@@ -136,6 +154,9 @@ func (s *Scraper) prepareScraper(name, siteURL string) {
 
 // filterLink checks if link belongs to the same domain
 func (s *Scraper) filterLink(link string) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	if _, ok := s.visited[link]; ok {
 		return false
 	}

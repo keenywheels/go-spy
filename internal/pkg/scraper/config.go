@@ -23,6 +23,16 @@ var (
 	}
 )
 
+// QueueConfig contains configuration for scraper queue
+type QueueConfig struct {
+	// Enabled shows is queue enabled
+	Enabled bool `mapstructure:"enabled"`
+	// ThreadNumber specifies number of threads for queue processing
+	ThreadNumber int `mapstructure:"thread_number"`
+	// MaxSize specifies maximum size of in memory queue storage
+	MaxSize int `mapstructure:"max_size"`
+}
+
 // Config contains scraper setting
 type Config struct {
 	// OutputEvery specifies how often to output results
@@ -53,6 +63,9 @@ type Config struct {
 	ProxyURLs []string `mapstructure:"proxy_urls"`
 	// UserAgent specifies the user agent for requests
 	UserAgent string `mapstructure:"user_agent"`
+
+	// Queue config for scraper queue
+	Queue QueueConfig `mapstructure:"queue"`
 }
 
 // DefaultConfig returns new config with default values
