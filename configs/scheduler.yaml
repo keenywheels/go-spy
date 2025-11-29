@@ -1,5 +1,5 @@
 scheduler:
-  cron_pattern: "54 * * * *"
+  cron_pattern: "12 * * * *"
   workers_count: 1
   logger:
     loglvl: debug
@@ -21,7 +21,7 @@ scheduler:
       Accept-Encoding: "gzip, deflate, br, zstd"
       Connection: "keep-alive"
     queue:
-      enabled: false
+      enabled: true
       thread_number: 2
       max_size: 250000
   sites:

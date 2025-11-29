@@ -1,7 +1,6 @@
 package scraper
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 
@@ -39,14 +38,13 @@ func (s *Scraper) Init() {
 			s.visited[link] = struct{}{}
 			s.mu.Unlock()
 
-			fmt.Printf("TESTING: adding to queue link %s\n", e.Request.AbsoluteURL(link))
-
 			// add to queue if exists
 			if s.q != nil {
 				s.q.AddURL(e.Request.AbsoluteURL(link))
 				return
 			}
 
+			// no queue -> call visit directly
 			s.c.Visit(e.Request.AbsoluteURL(link))
 		}
 	})
@@ -56,8 +54,9 @@ func (s *Scraper) Init() {
 func (s *Scraper) Visit(url string) error {
 	s.prepareScraper("", url)
 
-	// run queue if exists
+	// using queue if exists
 	if s.q != nil {
+		s.q.AddURL(url)
 		s.q.Run(s.c)
 	}
 
@@ -67,6 +66,13 @@ func (s *Scraper) Visit(url string) error {
 // VisitWithSiteName start scraping from specified url
 func (s *Scraper) VisitWithSiteName(url string, siteName string) error {
 	s.prepareScraper(siteName, url)
+
+	// using queue if exists
+	if s.q != nil {
+		s.q.AddURL(url)
+		s.q.Run(s.c)
+	}
+
 	return s.c.Visit(url)
 }
 
