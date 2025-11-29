@@ -19,18 +19,26 @@ type LoggerConfig struct {
 	MaxLogAge     int    `mapstructure:"max_log_age"`
 }
 
+// Site struct for site config
 type Site struct {
 	Name string `mapstructure:"name"`
 	Url  string `mapstructure:"url"`
 }
 
+// SystemServerConfig contains config for system server
+type SystemServerConfig struct {
+	Enabled bool `mapstructure:"enabled"`
+	Port    int  `mapstructure:"port"`
+}
+
 // AppConfig contains all configs which connected to main app
 type AppConfig struct {
-	CronPattern  string         `mapstructure:"cron_pattern"`
-	WorkersCount int            `mapstructure:"workers_count"`
-	Sites        []Site         `mapstructure:"sites"`
-	LoggerCfg    LoggerConfig   `mapstructure:"logger"`
-	ScraperCfg   scraper.Config `mapstructure:"scraper"`
+	CronPattern  string             `mapstructure:"cron_pattern"`
+	WorkersCount int                `mapstructure:"workers_count"`
+	Sites        []Site             `mapstructure:"sites"`
+	LoggerCfg    LoggerConfig       `mapstructure:"logger"`
+	ScraperCfg   scraper.Config     `mapstructure:"scraper"`
+	SysSrvCfg    SystemServerConfig `mapstructure:"system_server"`
 }
 
 // KafkaTopics contains all kafka topics

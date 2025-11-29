@@ -37,6 +37,8 @@ type QueueConfig struct {
 type Config struct {
 	// OutputEvery specifies how often to output results
 	OutputEvery int `mapstructure:"output_every"`
+	// LogErrors specifies whether to log errors
+	LogErrors bool `mapstructure:"log_errors"`
 	// MaxDepth specifies the maximum depth to crawl
 	MaxDepth int `mapstructure:"max_depth"`
 	// FilterPattern specifies the regex pattern to filter words

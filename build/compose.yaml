@@ -22,7 +22,7 @@ services:
     env_file: scheduler.env
     restart: always
     ports:
-      - "${SCHEDULER_PORT}:${SCHEDULER_PORT}"
+      - "${SCHEDULER_SYS_PORT}:${SCHEDULER_SYS_PORT}"
     volumes:
       - ../configs/scheduler.yaml:/scheduler/configs/scheduler.yaml:ro
     command: ./scheduler --config ${SCHEDULER_CONFIG_PATH}

@@ -17,8 +17,6 @@ FROM alpine:latest
 
 ENV TZ=Europe/Moscow
 
-EXPOSE 8009
-
 WORKDIR /scheduler
 
 COPY --from=builder /usr/share/zoneinfo/${TZ} /etc/localtime

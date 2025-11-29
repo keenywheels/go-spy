@@ -27,8 +27,10 @@ type Scraper struct {
 
 	output      []string
 	outputEvery int
-	cb          outputCallback
-	mu          sync.Mutex
+	isLogErrors bool
+
+	cb outputCallback
+	mu sync.Mutex
 
 	headers map[string]string
 }
@@ -46,6 +48,7 @@ func New(cfg *Config) (*Scraper, error) {
 		colly.UserAgent(cfg.UserAgent),
 		colly.MaxDepth(cfg.MaxDepth),
 		colly.Async(cfg.IsAsync),
+		colly.AllowURLRevisit(),
 	)
 
 	// if async then add limits
@@ -84,6 +87,7 @@ func New(cfg *Config) (*Scraper, error) {
 		headers:     cfg.Headers,
 		output:      make([]string, 0, cfg.OutputEvery),
 		outputEvery: cfg.OutputEvery,
+		isLogErrors: cfg.LogErrors,
 		cb:          defaultOutputCallback,
 	}, nil
 }

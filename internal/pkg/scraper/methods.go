@@ -6,6 +6,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
+	"github.com/keenywheels/go-spy/pkg/logger"
 )
 
 // SetOutputCallback sets output callback function
@@ -14,7 +15,7 @@ func (s *Scraper) SetOutputCallback(cb outputCallback) {
 }
 
 // Init initializes scraper
-func (s *Scraper) Init() {
+func (s *Scraper) Init(l logger.Logger) {
 	// set headers
 	s.c.OnRequest(func(r *colly.Request) {
 		for k, v := range s.headers {
@@ -30,7 +31,7 @@ func (s *Scraper) Init() {
 
 	// parse links
 	s.c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		link := e.Attr("href")
+		link := e.Request.AbsoluteURL(e.Attr("href"))
 
 		// filter links
 		if s.filterLink(link) {
@@ -40,14 +41,31 @@ func (s *Scraper) Init() {
 
 			// add to queue if exists
 			if s.q != nil {
-				s.q.AddURL(e.Request.AbsoluteURL(link))
+				s.q.AddURL(link)
 				return
 			}
 
 			// no queue -> call visit directly
-			s.c.Visit(e.Request.AbsoluteURL(link))
+			s.c.Visit(link)
 		}
 	})
+
+	if s.isLogErrors {
+		// logging errors
+		s.c.OnError(func(r *colly.Response, err error) {
+			l.Errorf("[Scraper]: got scraper error: URL=%s, Error=%v, Status=%d\n",
+				r.Request.URL, err, r.StatusCode)
+		})
+
+		// logging not ok responses
+		s.c.OnResponse(func(r *colly.Response) {
+			if r.StatusCode < 200 && r.StatusCode >= 300 {
+				l.Warnf("[Scraper]: got not ok status: URL=%s, Body=%s, Status=%d\n",
+					r.Request.URL, string(r.Body[:100]), r.StatusCode)
+			}
+		})
+
+	}
 }
 
 // Visit start scraping from specified url
