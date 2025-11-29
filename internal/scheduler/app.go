@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os/signal"
 	"syscall"
 
@@ -13,6 +14,8 @@ import (
 	"github.com/keenywheels/go-spy/pkg/logger"
 	"github.com/keenywheels/go-spy/pkg/logger/zap"
 	"golang.org/x/sync/errgroup"
+
+	_ "net/http/pprof"
 )
 
 // App represent app environment
@@ -55,6 +58,14 @@ func (app *App) Run() error {
 	defer cancel()
 
 	g, ctx := errgroup.WithContext(ctx)
+
+	// start system server if enabled
+	if app.cfg.SchedulerCfg.SysSrvCfg.Enabled {
+		app.logger.Info("starting system server")
+		g.Go(func() error {
+			return http.ListenAndServe(fmt.Sprintf(":%d", app.cfg.SchedulerCfg.SysSrvCfg.Port), nil)
+		})
+	}
 
 	// create broker
 	kafka, err := kafka.New(cfg.KafkaCfg.Brokers, kafka.Config{

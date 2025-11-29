@@ -94,7 +94,7 @@ func (s *Service) scrapeWorker(
 			}
 
 			scraper.SetOutputCallback(cb)
-			scraper.Init()
+			scraper.Init(s.logger)
 
 			if err := scraper.VisitWithSiteName(site.SiteUrl, site.SiteName); err != nil {
 				s.logger.Errorf("[%s] failed to visit site %s: %v", op, site, err)
