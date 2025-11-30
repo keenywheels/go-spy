@@ -1,6 +1,7 @@
 package scraper
 
 import (
+	"fmt"
 	"net/url"
 	"strings"
 
@@ -41,7 +42,13 @@ func (s *Scraper) Init(l logger.Logger) {
 
 			// add to queue if exists
 			if s.q != nil {
-				s.q.AddURL(link)
+				req, err := getCollyRequest(link, e.Request.Depth+1)
+				if err != nil {
+					l.Errorf("[scraper]: failed to create colly request: %v", err)
+					return
+				}
+
+				s.q.AddRequest(req)
 				return
 			}
 
@@ -74,7 +81,12 @@ func (s *Scraper) Visit(url string) error {
 
 	// using queue if exists
 	if s.q != nil {
-		s.q.AddURL(url)
+		req, err := getCollyRequest(url, 0)
+		if err != nil {
+			return fmt.Errorf("failed to create colly request: %w", err)
+		}
+
+		s.q.AddRequest(req)
 		s.q.Run(s.c)
 	}
 
@@ -87,7 +99,12 @@ func (s *Scraper) VisitWithSiteName(url string, siteName string) error {
 
 	// using queue if exists
 	if s.q != nil {
-		s.q.AddURL(url)
+		req, err := getCollyRequest(url, 0)
+		if err != nil {
+			return fmt.Errorf("failed to create colly request: %w", err)
+		}
+
+		s.q.AddRequest(req)
 		s.q.Run(s.c)
 	}
 
@@ -190,4 +207,18 @@ func (s *Scraper) filterLink(link string) bool {
 	}
 
 	return false
+}
+
+// getCollyRequest creates colly request from url
+func getCollyRequest(u string, d int) (*colly.Request, error) {
+	parsedURL, err := url.Parse(u)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse url=%s: %w", u, err)
+	}
+
+	return &colly.Request{
+		URL:    parsedURL,
+		Depth:  d,
+		Method: "GET",
+	}, nil
 }
