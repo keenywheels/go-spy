@@ -10,27 +10,25 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// siteMsg represents message from scraped site
-type siteMsg struct {
-	SiteName string
-	SiteUrl  string
+// Site struct for site config
+type Site struct {
+	Name     string `mapstructure:"name"`
+	Url      string `mapstructure:"url"`
+	Category string `mapstructure:"category"`
 }
 
 // ScrapeTask is the task that will be executed by the scheduler
 func (s *Service) ScrapeTask() {
 	op := "Service.ScrapeTask"
 
-	sitesCh := make(chan siteMsg)
+	sitesCh := make(chan Site)
 
 	gr, ctx := errgroup.WithContext(s.ctx)
 
 	// job producer
 	gr.Go(func() error {
-		for name, url := range s.sites {
-			sitesCh <- siteMsg{
-				SiteName: name,
-				SiteUrl:  url,
-			}
+		for _, site := range s.sites {
+			sitesCh <- site
 		}
 
 		close(sitesCh)
@@ -58,7 +56,7 @@ func (s *Service) scrapeWorker(
 	ctx context.Context,
 	workerNum int,
 	start string,
-	sitesCh chan siteMsg,
+	sitesCh chan Site,
 ) error {
 	op := fmt.Sprintf("WORKER %d", workerNum)
 
@@ -85,7 +83,8 @@ func (s *Service) scrapeWorker(
 				s.logger.Infof("[%s] sending data to kafka", op)
 
 				if err := s.broker.SendScraperData(models.ScraperEvent{
-					SiteName: site.SiteName,
+					SiteName: site.Name,
+					Category: site.Category,
 					Msg:      msg,
 					Date:     start,
 				}); err != nil {
@@ -96,7 +95,7 @@ func (s *Service) scrapeWorker(
 			scraper.SetOutputCallback(cb)
 			scraper.Init(s.logger)
 
-			if err := scraper.VisitWithSiteName(site.SiteUrl, site.SiteName); err != nil {
+			if err := scraper.VisitWithSiteName(site.Url, site.Name); err != nil {
 				s.logger.Errorf("[%s] failed to visit site %s: %v", op, site, err)
 				scraper.Flush()
 
