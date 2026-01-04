@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/keenywheels/go-spy/internal/pkg/scraper"
+	"github.com/keenywheels/go-spy/internal/scheduler/service"
 	"github.com/spf13/viper"
 )
 
@@ -19,12 +20,6 @@ type LoggerConfig struct {
 	MaxLogAge     int    `mapstructure:"max_log_age"`
 }
 
-// Site struct for site config
-type Site struct {
-	Name string `mapstructure:"name"`
-	Url  string `mapstructure:"url"`
-}
-
 // SystemServerConfig contains config for system server
 type SystemServerConfig struct {
 	Enabled bool `mapstructure:"enabled"`
@@ -35,7 +30,7 @@ type SystemServerConfig struct {
 type AppConfig struct {
 	CronPattern  string             `mapstructure:"cron_pattern"`
 	WorkersCount int                `mapstructure:"workers_count"`
-	Sites        []Site             `mapstructure:"sites"`
+	Sites        []service.Site     `mapstructure:"sites"`
 	LoggerCfg    LoggerConfig       `mapstructure:"logger"`
 	ScraperCfg   scraper.Config     `mapstructure:"scraper"`
 	SysSrvCfg    SystemServerConfig `mapstructure:"system_server"`

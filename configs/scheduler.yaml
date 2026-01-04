@@ -1,5 +1,5 @@
 scheduler:
-  cron_pattern: "36 * * * *"
+  cron_pattern: "01 * * * *"
   workers_count: 1
   logger:
     loglvl: debug
@@ -30,8 +30,10 @@ scheduler:
   sites:
     - name: coursera
       url: https://www.coursera.org
+      category: education
     - name: go.dev
       url: https://pkg.go.dev
+      category: programming
 
 kafka:
   max_retry: 5
